@@ -530,7 +530,7 @@ const CTYPES=[['guarantee','Gwarancja'],['warranty','Rękojmia']];
 const RESOLUTIONS=[['repair','Naprawa'],['replacement','Wymiana'],['refund','Zwrot pieniędzy']];
 const SHIP_IN=[['dpd','Kurier DPD (odbiór w następny dzień roboczy, paczka gabarytowa 39 zł)'],['inpost','Paczkomat 24/7 InPost'],['own','Wysyłka własna'],['salon','Dostarczę do salonu Cyfrowe.pl']];
 const SHIP_BACK=[['dpd','Kurier DPD'],['salon','Odbiór w salonie']];
-const SOURCES=[['tel','Telefon'],['mail','E-mail'],['chat','Czat'],['salon','Salon']];
+const SOURCES=[['parcel','Paczka z formularzem'],['tel','Telefon'],['mail','E-mail'],['chat','Czat'],['salon','Salon']];
 const KIND = {zwrot:{t:'Zwrot', icon:'undo', btn:'Zgłoś zwrot', pfx:'TCF-RMA-Z'}, reklamacja:{t:'Reklamacja', icon:'wrench', btn:'Zgłoś reklamację', pfx:'TCF-RMA-R'}};
 const lbl = (arr,v) => (arr.find(x=>x[0]===v)||['',''])[1];
 const money = n => n.toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d),)/g,' ')+' zł';
@@ -649,6 +649,7 @@ function openModal(kind, ids){
  <tbody>${its.map(it=>`<tr><td>${productHeader(it)}</td><td class="center aligned">${it.qty}${reported(it.id)?`<br><small>w zgłoszeniach: ${reported(it.id)}</small>`:''}</td>
  <td class="center aligned"><div class="ui mini input"><input type="number" class="rqty" data-id="${it.id}" min="1" max="${remaining(it)}" value="${remaining(it)}"></div></td>${isZ?`<td class="right aligned rval" data-id="${it.id}"></td>`:''}</tr>`).join('')}</tbody>
  ${isZ?'<tfoot><tr><th colspan="3" class="right aligned">Do zwrotu łącznie</th><th class="right aligned" id="rsum"></th></tr></tfoot>':''}</table>
+ ${select('source','Skąd przyszło zgłoszenie',SOURCES,1)}
  <h4 class="ui dividing header">Dane klienta</h4>
  <div class="three fields">${input('first','Imię',ORDER.first,1)}${input('last','Nazwisko',ORDER.last,1)}${input('email','Email',ORDER.email,1)}</div>`;
  if(isZ){
@@ -667,7 +668,7 @@ function openModal(kind, ids){
   <h4 class="ui dividing header">${isW?'Odbiór nowego produktu':'Odbiór po naprawie'}</h4>${select('shipBack','Metoda odbioru',SHIP_BACK,1)}${address('back')}`;
  }
  b += `<h4 class="ui dividing header">Zgłoszenie przyjął pracownik</h4>
- <div class="two fields">${select('source','Skąd przyszło zgłoszenie',SOURCES,1)}${input('internal','Notatka wewnętrzna','')}</div>
+ <div class="field">${input('internal','Notatka wewnętrzna','')}</div>
  <div class="required field" data-req="agree"><div class="ui checkbox"><input type="checkbox" id="agree" name="agree" class="hidden"><label for="agree">${isZ?'Klient oświadczył, że odstępuje od umowy sprzedaży towarów zaznaczonych powyżej.':'Klient zapoznał się z warunkami reklamacji i rękojmi zawartymi w Regulaminie Sklepu.'}</label></div></div>
  <div class="field"><div class="ui checkbox"><input type="checkbox" id="mail" name="mail" class="hidden" checked><label for="mail">Wyślij klientowi e-mail z potwierdzeniem zgłoszenia</label></div></div>`;
  document.body.classList.add('dimmable','dimmed','scrolling');
@@ -687,6 +688,7 @@ function openModal(kind, ids){
   ['in','back'].forEach(p=>{const s=f.querySelector(`[name=${p==='in'?'shipIn':'shipBack'}]`); f.querySelectorAll(`[data-sub^="${p}-"]`).forEach(x=>x.style.display=(s&&x.dataset.sub===p+'-'+s.value)?'':'none');});
   if(isZ){ let sum=0; f.querySelectorAll('.rqty').forEach(q=>{ const it=ITEMS.find(i=>i.id===q.dataset.id); const v=Math.max(0,Math.min(+q.value||0, remaining(it))); sum+=v*it.price; f.querySelector(`.rval[data-id="${it.id}"]`).textContent=money(v*it.price); }); document.getElementById('rsum').textContent=money(sum); }
  };
+ f.source.addEventListener('change',()=>{ if(f.source.value==='parcel'){ f.shipIn.value='own'; } upd(); });
  f.addEventListener('change',upd); f.addEventListener('input',upd); upd();
  f.addEventListener('submit',e=>{
   e.preventDefault(); let ok=true; f.querySelectorAll('.field,.fields').forEach(x=>x.classList.remove('error'));
