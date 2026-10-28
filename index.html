@@ -426,6 +426,16 @@
 .mk-bar a:hover{background:#333;color:#fff}
 .mk-bar a.on{background:#21ba45;color:#fff}
 body.czysto .mk-bar{display:none}
+#mk-doc{display:none}
+body.mk-printing .admin-layout{display:none}
+body.mk-printing #mk-doc{display:block;background:#fff;min-height:100vh;padding:24px 16px 80px}
+.mk-sheet{max-width:780px;margin:0 auto;color:#000;font-size:13px;line-height:1.45}
+.mk-sheet h1{font-size:20px;margin:0 0 4px}
+.mk-sheet table{width:100%;border-collapse:collapse;margin:8px 0 16px}
+.mk-sheet th,.mk-sheet td{border:1px solid #999;padding:5px 8px;text-align:left;vertical-align:top}
+.mk-sheet .mk-sign{display:flex;gap:48px;margin-top:56px}
+.mk-sheet .mk-sign div{flex:1;border-top:1px solid #000;padding-top:4px;text-align:center}
+@media print{.mk-bar,.mk-doc-tools{display:none!important} body.mk-printing #mk-doc{padding:0}}
 </style>
 </head>
 <body>
@@ -505,8 +515,9 @@ body.czysto .mk-bar{display:none}
 </div>
 </div>
 
+<div id="mk-doc"></div>
 <nav class="mk-bar" id="mkbar">
-<b>Makieta</b>
+<b title="Zgłoszenia zapisują się tylko w tej przeglądarce i nie trafiają do Verto">Makieta, nic nie trafia do Verto</b>
 <a href="#dzis" data-v="dzis">Jak jest dziś</a>
 <a href="#zamowienie" data-v="zamowienie">Propozycja</a>
 <a href="#" id="mkReset" title="Przywraca reklamację klienta TCF-RMA-R/12763/2026 i usuwa zgłoszenia z panelu">Stan początkowy</a>
@@ -517,7 +528,8 @@ body.czysto .mk-bar{display:none}
 const IMG = {xs20:"data:image/webp;base64,UklGRkoEAABXRUJQVlA4ID4EAADQFACdASpAAEAAPjESiEKiISEYCgd8IAMEtIAqwGgBvLmAAfwDbp8Lvpr2oyoD5Til2s/7L+VHCT8q/rn+q40tMljx/0Xpuf83mA+mv+r7hP8v/qX+86+XoiK4qxME6n09xC/AJcX2GL8XadRKm4svqHir3md8ylVlYyNHE7LA9xNXdi7dJ/SMDqw7xZAey2TgQd1uGRSmaOxOSqLotCCdPP7wG9sLp9MXqiL1CengAP7/lojYjBwFsJ1RTWCAorzn7ZKjC7W1rXcGbf8YGHh/yuuSTWHV8P/5FB8q7XQMjED641xMr09C+79AU6l/+YNfFzLrkrBKpezEaE/fLCSx4UimimLVf9T4vqUBTTrlv0NxXuc8hqJ3z208vXW+hpvPBIMlSgd/aHqUw5EIj6/ya9LBnKvdh4rgAH8dZt7l6lsYp4KkA8u70MysPGeHDufF+IsRlWOwGCdvdA3n/7/4PlnqIo0ipSdexeCjtTkpkfZl5PHJJ23fhV+ItsJxZ4Ww5JBx5Hdm9gn9JnRjxc308vNWo+Yhp/iN/K0AxPCdXblMicYaeBJAv/5jgrpNshDfvHqvI9eNV5x5ZfIumJlD06yb6S8bnEV2gCE/JQDrH/8hO4hH//d6CoG/9XZxqu+A48EQ/SfajLvHbABTbqgis739uUkoPEEfMfTkPsOacOf9qMaj3MeLtTgTbnULgwQiaNLPPvj5XIdEihY6/VLDfalpJ+UuB2ReY1CLfysZu8e/U+eKz+Qwaxv9S2405AZlUdRWg8Ualjb8zdgptr5seZnrj8cPYNqJfhchWzpX2u225n3tSwHRuZy+nKSi8Pngl4jAKGplePxpxSfddMO7S2RQbnJ4UP77jfD17QqOKEBbIHaSkw/qzdhhTG8yHVA8Qz2byojFO+ytlWd/qXhZTlniEvEmonQlwaDOqkZN/qCIe7gU/4OnbxpWpmQVU/9LbkpOglwGvffpX/tjEHU+TuLL1IxT4kupVW2qE0ju+or5W9U5dxBeOMzquLgetX5EZfIhSioR3BurVkX4cB67k/+b07e3ZV54XMLVwT6cnuvVt03Kr+W0ypmwHWgW5efZl/hD9oPBPpgOc8v4ih0zG7W7Br+wr+f0ni3wYKaxMf3nBXPyd/Jv6eOQ2nNTLEi1iMaj2Jd47X5r7XSN2nTvNRL3pC0gl+oUv/vjp5wa6/e49G/nHbpkZQSH0Pi4LAwQACg48X7H9Jvg4ZBtgkMPrt7xZdiGlw3uOfktvC5dP+D/xOsRe8Uz5sCzNUWj//hd2b+hjqjTCoV7X/ac6hA8Rk5ndeJwjvaDIAQ6U0I+lXAW69896jpG4eqtB+dqoW0UkevD1H6zSjRsF2FncYKN+avv9ioQhqjwW1I79W3wkpo3mH2mo20jsN6UQJFPs8HYWDSCaM16DcUJFU0SAXFvxOlJaqxFXyw53ZH6UAA=", bat:"data:image/webp;base64,UklGRogFAABXRUJQVlA4IHwFAAAwGQCdASpAAEAAAAAAJaQDO0SCmAvk/4W/qT6r+F3v97D/r3yx4gXxj7AfYfyC/Zn/Xc6u8J/iX9C/GH9m/8PyCUqvkifK/7H+Pv91/x/+Z2DD+wflFzA1AD+R/1X/PfkV/APkG/svxu/lfuD/Mv8V/wPyG+gL+L/yj+y/2z9jP7h/4vEV+1XsZfqSmFASAPYReh/fs9gQuCv9MdujCf//mcPNMbj//9moaf1G1quoktucqt8+1CLLM8zSjC5ICd8Gz8ff7Jdk4ESxUlPC+FjaqgAA/v/e3PHDGHbQ2ZZ4lP4YxgrtZUxPfKe1B/6a6jGHYYLEkUDd+1mHf5f6Cw6/PWUzocgE9Pzrs3xFrxCLEgUSdfektCkScsBTqKvalWnE3mCGSSvQ45qRCjCBgLLUUaAbuJz2H09J3ojzv5Oc/LqrlOp+O5At0/3GtFBulekql2GM4WjBeGmphOT/maUAOTvrbTkyrmYuH+TdDOAEzWisG8up4IjP5sqpqZPyZo5FZZGwRdf/+qbMNNPXRZPWeu2irgFIMeZxZLLKVkqYjF+8ba6sTb+FzoAGxHcfTusEzj+tkrKezAl2delFKP7ybQMpt35C5NXOxO32iw0AWWH3G5y0PxRcjulbr8ELMe6EQtHd9Wj6YenTXgKveSw8mXCYgbgjmpgHiIvGC4Vii98S9dI977UZO7qDaEukj/6Ni73WyQ8PX/bt4RmnlhzcTYbc5uDtS8Xpg36V+kdfju+Fa6PMLAOl8za2M41cH4RJRTL9CSJotnO6bncT+mVfzz704vXqY/NVn7xdrA7BI0Nf0j0lOkifC7EX5cFJsdhBQPpZTUBx+RGzJ67v5igRctJrFRQwq5MCT96c6+0wI89dIzJ9ndFrmjLCgQsk+pCcYut2ghR+3j7ITKmvGqE2zvV25PnDt2qE+/wL6cuyFKZXw4/1bnvecUTu8pT28exgYi2zNy+mhrQU+poGpPhbLrMp+lRhTiRmPqeEzJFiv2VVH+sXU8n4a+R/nwV1OhKNC83MZKgSc4WDxIxHGh+duq0DJvmJC6IsXUTZQmzHOOfw2U0GX1/zG3C/7REdohoAWFf1OSvc1JBYrn//YM9kDrx0NtAkHGCks1dk72ca9T14EZOUNi6MAAYYGGaK/y6HfI24tmMkj2cfyVZT8SGbk+R6saWf7x2FcAQYZOPtWYKWvNMPhbIEqrJTpofwzTn1K88cMQ9Hq32qNoj8OE0M4PPDDxl5lYSWtTHldmEDpUSgqYgbjgetNo2xplpR1uAXFBcnelniGlHZIftnbx41iW9YLyma/3AJcURQUHB3HuTs8fIfRPuEZrrRjifMlGYJ0hXpprHrgN0Iolxtwl5EXhXapB0AkSa4LwZ4MA9/emhWs08Nc4g6cS433qPH2UfyJfnXmILJRbt9zomX/wA0qLUDC7dsAh1oC1Q0GCxo0tSpuxorktCkvOu24K+bz2Hw5V118xPABXXZO8vS590YgEDoN+n+t59hc3IVh+EnSh48wj1u9c9UflV31MyX89Me88sYbS9+N//nzLP9KsOU1gGWCCcNQ0vE64PizXvjBX4AToYazAF8mrtm0f1NhgaHxueS3Ene4qo57jjL8asPqALEkTXzufu9qSFyYLUEktkVUGXx17PlrChqDnK0l61XUvNLsIsQCozqUKbKL1Jcd1Zt+YBkcUAS4dyLSprbKdvaKFrThjHJU0cNjGbsoHITmEnRFOdjPJIB1kU0r8THPScTss9bQwdm8IqHp6SMcXU9U8JBxcUrX8a5NiYEKGm9dyXDL1EYtC0ZdMTiuXHAueXrHpcpZn9KSdMm+3Atql8LTKNhFdcn/jw/P7/wxPBqrCirCN+gAAAAAAA=", sd:"data:image/webp;base64,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"};
 // Zamówienie 1305562 z serwera testowego. Akumulator i karta dodane do makiety, żeby pokazać zaznaczanie kilku produktów i części ilości.
 // Adres dostawy przykładowy: zamówienie testowe ma odbiór w salonie i nie ma adresu.
-const ORDER = {no:'1305562', id:529949, date:'27 paź 2026, 13:09:33', first:'Jan', last:'Kowalski', email:'jan.kowalski@example.com', phone:'600100200',
+// Numer dokumentu sprzedaży przykładowy.
+const ORDER = {no:'1305562', id:529949, date:'27 paź 2026, 13:09:33', invoice:'FV/12345/10/2026', first:'Jan', last:'Kowalski', email:'jan.kowalski@example.com', phone:'600100200',
  company:'', street:'Długa', house:'12', flat:'3', post:'80-827', city:'Gdańsk'};
 const ITEMS = [
  {id:'xs20', name:'X-S20 body czarny', code:'ACFFJIXS20-B-variant-0', price:5399, qty:1, tax:1009.57},
@@ -531,23 +543,32 @@ const RESOLUTIONS=[['repair','Naprawa'],['replacement','Wymiana'],['refund','Zwr
 const SHIP_IN=[['dpd','Kurier DPD (odbiór w następny dzień roboczy, paczka gabarytowa 39 zł)'],['inpost','Paczkomat 24/7 InPost'],['own','Wysyłka własna'],['salon','Dostarczę do salonu Cyfrowe.pl']];
 const SHIP_BACK=[['dpd','Kurier DPD'],['salon','Odbiór w salonie']];
 const SOURCES=[['parcel','Paczka z formularzem'],['tel','Telefon'],['mail','E-mail'],['chat','Czat'],['salon','Salon']];
-const KIND = {zwrot:{t:'Zwrot', icon:'undo', btn:'Zgłoś zwrot', pfx:'TCF-RMA-Z'}, reklamacja:{t:'Reklamacja', icon:'wrench', btn:'Zgłoś reklamację', pfx:'TCF-RMA-R'}};
+// Prefiks naprawy odpłatnej przykładowy, do potwierdzenia z Verto.
+const KIND = {zwrot:{t:'Zwrot', icon:'undo', btn:'Zgłoś zwrot', pfx:'TCF-RMA-Z', done:'został utworzony i przekazany'},
+ reklamacja:{t:'Reklamacja', icon:'wrench', btn:'Zgłoś reklamację', pfx:'TCF-RMA-R', done:'została utworzona i przekazana'},
+ naprawa:{t:'Naprawa odpłatna', icon:'cogs', btn:'Zgłoś naprawę odpłatną', pfx:'TCF-RMA-N', done:'została utworzona i przekazana'}};
+const AGREE = {zwrot:'Klient oświadczył, że odstępuje od umowy sprzedaży towarów zaznaczonych powyżej.',
+ reklamacja:'Klient zapoznał się z warunkami reklamacji i rękojmi zawartymi w Regulaminie Sklepu.',
+ naprawa:'Klient wie, że naprawa jest odpłatna, i zgadza się na przekazanie sprzętu do serwisu.'};
 const lbl = (arr,v) => (arr.find(x=>x[0]===v)||['',''])[1];
 const money = n => n.toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d),)/g,' ')+' zł';
 const esc = s => String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
 const INITIAL = [{id:1, kind:'reklamacja', no:'TCF-RMA-R/12763/2026', date:'27 paź 2026, 13:16', items:[{id:'xs20',qty:1}],
- who:'Klient (strona sklepu)', first:ORDER.first, last:ORDER.last, email:ORDER.email, ctype:'warranty', reason:'detected_defect_during_use', faultDate:'2026-10-26',
+ reqDate:'2026-10-27', who:'Klient (strona sklepu)', first:ORDER.first, last:ORDER.last, email:ORDER.email, phone:ORDER.phone, ctype:'warranty', reason:'detected_defect_during_use', faultDate:'2026-10-26',
  faultDesc:'Aparat nie włącza się. W komplecie bateria i ładowarka, stan dobry.', resolution:'repair',
  shipIn:'salon', in_salon:'Gdańsk, ul. Kartuska', shipBack:'salon', back_salon:'Gdańsk, ul. Kartuska', mail:true}];
-const KEY='mk-rma-panel-v3';
+const KEY='mk-rma-panel-v4';
 let S;
 function load(){ try{ const r=localStorage.getItem(KEY); S=r?JSON.parse(r):null; }catch(e){ S=null; } if(!S) S={rmas:JSON.parse(JSON.stringify(INITIAL)), next:12764}; }
 function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
 load();
 let flash=null, sel={};
-const reported = id => S.rmas.reduce((a,r)=>a+r.items.filter(i=>i.id===id).reduce((b,i)=>b+i.qty,0),0);
-const remaining = it => it.qty - reported(it.id);
+// Limit liczy tylko zwroty: zwróconej sztuki nie da się zwrócić ani reklamować, a reklamację tej samej sztuki da się złożyć ponownie.
+const reported = (id,kind) => S.rmas.filter(r=>!kind||r.kind===kind).reduce((a,r)=>a+r.items.filter(i=>i.id===id).reduce((b,i)=>b+i.qty,0),0);
+const remaining = it => it.qty - reported(it.id,'zwrot');
+const today = () => { const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
+const plDate = s => s?s.split('-').reverse().join('.'):'';
 const now = () => { const d=new Date(); const m=['sty','lut','mar','kwi','maj','cze','lip','sie','wrz','paź','lis','gru'][d.getMonth()]; return `${d.getDate()} ${m} ${d.getFullYear()}, ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; };
 
 // ---------- strona zamówienia ----------
@@ -564,14 +585,14 @@ function orderView(proposal){
  const rows = ITEMS.map(it=>{
   const rem=remaining(it), done=it.qty-rem;
   const tags = proposal ? S.rmas.filter(r=>r.items.some(i=>i.id===it.id)).map(r=>`<a class="ui mini label" href="#zgloszenie/${r.id}" title="${r.no}">${KIND[r.kind].t} × ${r.items.find(i=>i.id===it.id).qty}</a>`).join(' ') : '';
-  const cb = proposal ? `<div class="ui fitted checkbox ${rem?'':'disabled'}"><input type="checkbox" class="hidden itm" id="cb_${it.id}" data-id="${it.id}" ${rem?'':'disabled'} ${sel[it.id]?'checked':''}><label for="cb_${it.id}" title="${rem?'':'Cała ilość jest już w zgłoszeniach'}"></label></div>` : '';
+  const cb = proposal ? `<div class="ui fitted checkbox ${rem?'':'disabled'}"><input type="checkbox" class="hidden itm" id="cb_${it.id}" data-id="${it.id}" ${rem?'':'disabled'} ${sel[it.id]?'checked':''}><label for="cb_${it.id}" title="${rem?'':'Cała ilość została już zwrócona'}"></label></div>` : '';
   const cell = proposal ? `<td><div style="display:flex;align-items:center;gap:1em">${cb}<div>${productHeader(it)}${tags?`<div style="margin-top:.5em">${tags}</div>`:''}</div></div></td>` : `<td class="single line">${productHeader(it)}</td>`;
   return `<tr class="${sel[it.id]?'active':''} ${rem||!proposal?'':'disabled'}">${cell}
   <td class="right aligned">${money(it.price)}</td><td class="right aligned">0,00&nbsp;zł</td><td class="right aligned"><span style="font-style:italic;">~ 0,00&nbsp;zł</span></td><td class="right aligned">${money(it.price)}</td><td class="right aligned">${it.qty}</td><td class="right aligned">${money(it.price*it.qty)}</td>
   <td class="right aligned tax"><div class="tax-disabled"><div class="tax-included">${money(it.tax)}</div><small>(Wliczone w cenę)</small></div></td><td class="right aligned">${money(it.price*it.qty)}</td></tr>`;}).join('');
  const bulk = proposal ? `<div class="ui form"><div class="inline fields">
   <div class="field"><label id="selInfo"></label></div>
-  <div class="field"><select id="bulk" class="ui dropdown"><option value="">Wybierz akcję</option><option value="zwrot">Zgłoś zwrot</option><option value="reklamacja">Zgłoś reklamację</option></select></div>
+  <div class="field"><select id="bulk" class="ui dropdown"><option value="">Wybierz akcję</option><option value="zwrot">Zgłoś zwrot</option><option value="reklamacja">Zgłoś reklamację</option><option value="naprawa">Zgłoś naprawę odpłatną</option></select></div>
   <div class="field"><button type="button" class="ui labeled icon primary button" id="bulkGo"><i class="arrow right icon"></i>Dalej</button></div></div></div>` : '';
  const thEl = proposal ? `<div style="display:flex;align-items:center;gap:1em"><div class="ui fitted checkbox"><input type="checkbox" id="cbAll" class="hidden"><label for="cbAll"></label></div>Element</div>` : 'Element';
  const table = `<div class="ui segment" style="overflow-x:auto;">${bulk}
@@ -585,8 +606,8 @@ function orderView(proposal){
 <table class="ui celled compact small table"><thead><tr><th>Kod odbioru</th></tr></thead><tbody><tr><td>178-722</td></tr></tbody></table>`;
  const rmaSec = proposal ? `<h4 class="ui attached styled header top compact">Zwroty i reklamacje</h4>
  <div class="ui attached segment">${S.rmas.length?`<table class="ui celled compact small table">
- <thead><tr><th>Numer zgłoszenia</th><th>Rodzaj</th><th>Data</th><th>Produkty</th><th>Dostarczenie</th><th>Zgłosił</th></tr></thead>
- <tbody>${S.rmas.map(r=>`<tr><td><a href="#zgloszenie/${r.id}">${r.no}</a></td><td>${KIND[r.kind].t}</td><td>${r.date}</td><td>${r.items.map(i=>`${ITEMS.find(x=>x.id===i.id).name} × ${i.qty}`).join('<br>')}</td><td>${shipName(r)}</td><td>${r.who}</td></tr>`).join('')}</tbody></table>`
+ <thead><tr><th>Numer zgłoszenia</th><th>Rodzaj</th><th>Data zgłoszenia</th><th>Produkty</th><th>Dostarczenie</th><th>Zgłosił</th><th></th></tr></thead>
+ <tbody>${S.rmas.map(r=>`<tr><td><a href="#zgloszenie/${r.id}">${r.no}</a></td><td>${KIND[r.kind].t}</td><td>${plDate(r.reqDate)}</td><td>${r.items.map(i=>`${ITEMS.find(x=>x.id===i.id).name} × ${i.qty}`).join('<br>')}</td><td>${shipName(r)}</td><td>${r.who}</td><td class="center aligned"><a class="ui icon button" href="#wydruk/${r.id}" title="Drukuj potwierdzenie"><i class="print icon"></i></a></td></tr>`).join('')}</tbody></table>`
  :`<div class="ui info message"><div class="header">Info</div><p>Brak wyników do wyświetlenia</p></div>`}</div>` : '';
  const mail = `<h4 class="ui attached styled header top compact">E-mail jednorazowy</h4>
 <div class="ui attached segment"><form class="ui form" onsubmit="return false"><div class="field"><label>Szablony e-mail</label><select class="ui dropdown"><option>Czas się kończy, odbierz w ciągu 2 dni</option><option>Dotyczy zamówienia</option></select></div>
@@ -643,16 +664,24 @@ const address = p => `<div data-sub="${p}-dpd" style="display:none">
  <div data-sub="${p}-salon" style="display:none">${select(p+'_salon','Salon',SALONS.map(s=>[s,s]),1)}</div>`;
 
 function openModal(kind, ids){
- const k=KIND[kind], isZ=kind==='zwrot', isW=false;
+ const k=KIND[kind], isZ=kind==='zwrot', isN=kind==='naprawa', isW=false;
  const its=ids.map(id=>ITEMS.find(i=>i.id===id));
+ const hist = it => ['zwrot','reklamacja','naprawa'].map(t=>reported(it.id,t)?`<br><small>${{zwrot:'zwrócone',reklamacja:'w reklamacjach',naprawa:'w naprawach odpłatnych'}[t]}: ${reported(it.id,t)}</small>`:'').join('');
  let b = `<table class="ui celled compact small table"><thead><tr><th>Element</th><th class="center aligned">Ilość w zamówieniu</th><th class="center aligned">${isZ?'Do zwrotu':'Do zgłoszenia'}</th>${isZ?'<th class="right aligned">Wartość</th>':''}</tr></thead>
- <tbody>${its.map(it=>`<tr><td>${productHeader(it)}</td><td class="center aligned">${it.qty}${reported(it.id)?`<br><small>w zgłoszeniach: ${reported(it.id)}</small>`:''}</td>
+ <tbody>${its.map(it=>`<tr><td>${productHeader(it)}</td><td class="center aligned">${it.qty}${hist(it)}</td>
  <td class="center aligned"><div class="ui mini input"><input type="number" class="rqty" data-id="${it.id}" min="1" max="${remaining(it)}" value="${remaining(it)}"></div></td>${isZ?`<td class="right aligned rval" data-id="${it.id}"></td>`:''}</tr>`).join('')}</tbody>
  ${isZ?'<tfoot><tr><th colspan="3" class="right aligned">Do zwrotu łącznie</th><th class="right aligned" id="rsum"></th></tr></tfoot>':''}</table>
- ${select('source','Skąd przyszło zgłoszenie',SOURCES,1)}
+ <div class="three fields">${select('source','Skąd przyszło zgłoszenie',SOURCES,1)}${select('srcSalon','Salon przyjmujący',SALONS.map(s=>[s,s]),1).replace('<div class="','<div data-sub="src-salon" style="display:none" class="')}
+ <div class="required field"><label>Data zgłoszenia</label><input type="date" name="reqDate" value="${today()}" max="${today()}"></div></div>
  <h4 class="ui dividing header">Dane klienta</h4>
- <div class="three fields">${input('first','Imię',ORDER.first,1)}${input('last','Nazwisko',ORDER.last,1)}${input('email','Email',ORDER.email,1)}</div>`;
- if(isZ){
+ <div class="two fields">${input('first','Imię',ORDER.first,1)}${input('last','Nazwisko',ORDER.last,1)}</div>
+ <div class="two fields">${input('email','Email',ORDER.email,1)}${input('phone','Numer telefonu',ORDER.phone,1)}</div>`;
+ if(isN){
+  b += `<h4 class="ui dividing header">Opis zgłoszenia</h4>
+  <div class="field required"><label>Opis problemu / Dołączone akcesoria / Stan sprzętu</label><textarea name="faultDesc" rows="2"></textarea></div>
+  <h4 class="ui dividing header">Wysyłka</h4>${select('shipIn','Metoda wysyłki',SHIP_IN,1)}${address('in')}
+  <h4 class="ui dividing header">Odbiór po naprawie</h4>${select('shipBack','Metoda odbioru',SHIP_BACK,1)}${address('back')}`;
+ } else if(isZ){
   b += `<h4 class="ui dividing header">Powód zwrotu</h4>${radios('reason','Wybierz powód',RET_REASONS)}
   <div class="field"><label>Uwagi (opcjonalne)</label><textarea name="notes" rows="2"></textarea></div>
   <h4 class="ui dividing header">Wysyłka</h4>${select('shipIn','Metoda wysyłki',SHIP_IN,1)}${address('in')}
@@ -669,7 +698,7 @@ function openModal(kind, ids){
  }
  b += `<h4 class="ui dividing header">Zgłoszenie przyjął pracownik</h4>
  <div class="field">${input('internal','Notatka wewnętrzna','')}</div>
- <div class="required field" data-req="agree"><div class="ui checkbox"><input type="checkbox" id="agree" name="agree" class="hidden"><label for="agree">${isZ?'Klient oświadczył, że odstępuje od umowy sprzedaży towarów zaznaczonych powyżej.':'Klient zapoznał się z warunkami reklamacji i rękojmi zawartymi w Regulaminie Sklepu.'}</label></div></div>
+ <div class="required field" data-req="agree"><div class="ui checkbox"><input type="checkbox" id="agree" name="agree" class="hidden"><label for="agree">${AGREE[kind]}</label></div></div>
  <div class="field"><div class="ui checkbox"><input type="checkbox" id="mail" name="mail" class="hidden" checked><label for="mail">Wyślij klientowi e-mail z potwierdzeniem zgłoszenia</label></div></div>`;
  document.body.classList.add('dimmable','dimmed','scrolling');
  document.body.insertAdjacentHTML('beforeend', `<div class="ui dimmer modals page transition visible active" id="mk-modal" style="display:flex !important;">
@@ -685,10 +714,13 @@ function openModal(kind, ids){
  wrap.addEventListener('mousedown',e=>{ if(e.target===wrap) close(); });
  document.addEventListener('keydown',function esc(e){ if(e.key==='Escape'){ close(); document.removeEventListener('keydown',esc);} });
  const upd=()=>{
+  f.querySelector('[data-sub="src-salon"]').style.display = f.source.value==='salon'?'':'none';
   ['in','back'].forEach(p=>{const s=f.querySelector(`[name=${p==='in'?'shipIn':'shipBack'}]`); f.querySelectorAll(`[data-sub^="${p}-"]`).forEach(x=>x.style.display=(s&&x.dataset.sub===p+'-'+s.value)?'':'none');});
   if(isZ){ let sum=0; f.querySelectorAll('.rqty').forEach(q=>{ const it=ITEMS.find(i=>i.id===q.dataset.id); const v=Math.max(0,Math.min(+q.value||0, remaining(it))); sum+=v*it.price; f.querySelector(`.rval[data-id="${it.id}"]`).textContent=money(v*it.price); }); document.getElementById('rsum').textContent=money(sum); }
  };
- f.source.addEventListener('change',()=>{ if(f.source.value==='parcel'){ f.shipIn.value='own'; } upd(); });
+ // Paczka z formularzem: produkt już jest w sklepie. Salon: klient zostawia sprzęt w salonie, który przyjął zgłoszenie.
+ f.source.addEventListener('change',()=>{ if(f.source.value==='parcel'){ f.shipIn.value='own'; } if(f.source.value==='salon'){ f.shipIn.value='salon'; } upd(); });
+ f.srcSalon.addEventListener('change',()=>{ if(f.shipIn.value==='salon' && f.in_salon) f.in_salon.value=f.srcSalon.value; });
  f.addEventListener('change',upd); f.addEventListener('input',upd); upd();
  f.addEventListener('submit',e=>{
   e.preventDefault(); let ok=true; f.querySelectorAll('.field,.fields').forEach(x=>x.classList.remove('error'));
@@ -704,9 +736,10 @@ function openModal(kind, ids){
   const data={}; new FormData(f).forEach((v,k)=>data[k]=v);
   const r = Object.assign(data, {id:Date.now(), kind, no:`${k.pfx}/${S.next++}/2026`, date:now(),
    items:[...f.querySelectorAll('.rqty')].map(q=>({id:q.dataset.id, qty:+q.value})),
-   who:`Przemysław (panel, ${lbl(SOURCES,data.source).toLowerCase()})`, mail:f.mail.checked, resolution: data.resolution});
+   who:`Przemysław (panel, ${data.source==='salon'?'salon '+data.srcSalon.split(',')[0]:lbl(SOURCES,data.source).toLowerCase()})`, mail:f.mail.checked, resolution: data.resolution});
+  if(new Date(r.reqDate)>new Date(today())){ f.reqDate.closest('.field').classList.add('error'); f.classList.add('error'); wrap.scrollTop=0; S.next--; return; }
   S.rmas.push(r); save(); sel={}; close();
-  flash = `${k.t} ${r.no} ${kind==='zwrot'?'został utworzony i przekazany':'została utworzona i przekazana'} do Verto.${r.mail?' Klient dostał e-mail z potwierdzeniem.':''} <a href="#zgloszenie/${r.id}">Pokaż zgłoszenie</a>`;
+  flash = `${k.t} ${r.no} ${k.done} do Verto.${r.mail?' Klient dostał e-mail z potwierdzeniem.':''} <a href="#zgloszenie/${r.id}">Pokaż zgłoszenie</a> · <a href="#wydruk/${r.id}">Drukuj potwierdzenie</a>`;
   location.hash='#zamowienie'; render();
  });
 }
@@ -722,7 +755,7 @@ function detailView(id){
  const total = r.items.reduce((a,i)=>a+ITEMS.find(x=>x.id===i.id).price*i.qty,0);
  return `<div class="ui stackable two column grid">
  <div class="ten wide column"><h1 class="ui header"><i class="circular ${k.icon} icon"></i><div class="content">${r.no}<div class="sub header"><div class="ui horizontal divided list"><div class="item">${r.date}</div><div class="item"><span class="ui label">${k.t}</span></div><div class="item">Zamówienie <a href="#zamowienie">#${ORDER.no}</a></div></div></div></div></h1></div>
- <div class="six wide right aligned column"><div class="ui buttons"><a href="#zamowienie" class="ui labeled icon button"><i class="icon arrow left"></i>Wróć do zamówienia</a></div></div></div>
+ <div class="six wide right aligned column"><div class="ui buttons"><a href="#wydruk/${r.id}" class="ui labeled icon button"><i class="icon print"></i>Drukuj potwierdzenie</a><a href="#zamowienie" class="ui labeled icon button"><i class="icon arrow left"></i>Wróć do zamówienia</a></div></div></div>
  ${crumbs(['Zamówienia','#zamowienie'],['#'+ORDER.no,'#zamowienie'],[r.no])}
  <div class="ui stackable grid"><div class="twelve wide column">
  <div class="ui segment"><table class="ui celled compact small table"><thead><tr><th>Element</th><th class="center aligned">Ilość</th><th class="right aligned">Wartość</th></tr></thead>
@@ -730,27 +763,56 @@ function detailView(id){
  <tfoot><tr><th colspan="2" class="right aligned">Łącznie</th><th class="right aligned">${money(total)}</th></tr></tfoot></table></div>
  <h4 class="ui attached styled header top">Szczegóły zgłoszenia</h4>
  <div class="ui attached segment"><table class="ui definition compact small table"><tbody>
- ${row('Rodzaj', k.t)}${row('Rodzaj reklamacji', lbl(CTYPES,r.ctype))}
+ ${row('Rodzaj', k.t)}${row('Data zgłoszenia', plDate(r.reqDate))}${row('Dokument sprzedaży', ORDER.invoice)}${row('Rodzaj reklamacji', lbl(CTYPES,r.ctype))}
  ${row('Powód', lbl(isZ?RET_REASONS:CMP_REASONS, r.reason))}
  ${row('Data wykrycia usterki', r.faultDate?r.faultDate.split('-').reverse().join('.'):'')}
  ${row('Opis problemu', esc(r.faultDesc))}${row('Oczekiwany sposób rozwiązania', lbl(RESOLUTIONS,r.resolution))}
  ${row('Uwagi', esc(r.notes))}
+ ${row('Dane klienta', `${esc(r.first)} ${esc(r.last)}<br>${esc(r.email)}<br>tel. ${esc(r.phone)}`)}
  ${row('Wysyłka do sklepu', shipIn)}${row('Odbiór po naprawie', shipBack)}
  ${isZ?row('Zwrot środków', `${esc(r.bankOwner)}${r.bankNo?'<br>PL '+esc(r.bankNo):''}`):''}
  </tbody></table></div>
  <h4 class="ui attached styled header">Przyjęcie zgłoszenia</h4>
  <div class="ui attached segment"><table class="ui definition compact small table"><tbody>
  ${row('Zgłosił', r.who)}${row('Notatka wewnętrzna', esc(r.internal))}
- ${row('Oświadczenie klienta', isZ?'Klient odstępuje od umowy sprzedaży':'Klient zna warunki reklamacji i rękojmi')}
- ${row('E-mail do klienta', r.mail?'Wysłany na '+esc(r.email):'Nie wysłano')}${row('Przekazanie do Verto','Przekazane '+r.date)}
+ ${row('Oświadczenie klienta', AGREE[r.kind])}
+ ${row('Potwierdzenie zgłoszenia', r.mail?'Wysłane na '+esc(r.email):'Nie wysłano')}
+ ${row('Powiadomienia o zmianie statusu', 'Na '+esc(r.email))}
+ ${row('Przekazanie do Verto',`Przekazane ${r.date}, z dokumentem sprzedaży ${ORDER.invoice} i jego pozycjami`)}
  </tbody></table></div>
  </div><div class="four wide column">${rightColumn().split('<div class="ui segment">')[0]}</div></div>`;
+}
+
+// ---------- wydruk potwierdzenia ----------
+// Układ przykładowy. Wydruk ma być taki sam jak dokument, który klient dostaje dziś po zgłoszeniu na stronie.
+function printView(id){
+ const r=S.rmas.find(x=>String(x.id)===String(id)); if(!r) return '';
+ const k=KIND[r.kind], isZ=r.kind==='zwrot';
+ const row=(a,b)=>b?`<tr><th style="width:34%">${a}</th><td>${b}</td></tr>`:'';
+ const back = r.shipBack ? (r.shipBack==='dpd'?'Kurier DPD':'Odbiór w salonie '+esc(r.back_salon)) : '';
+ return `<div class="mk-doc-tools" style="max-width:780px;margin:0 auto 16px;display:flex;gap:8px;flex-wrap:wrap">
+ <button type="button" class="ui labeled icon primary button" onclick="window.print()"><i class="print icon"></i>Drukuj</button>
+ <a class="ui labeled icon button" href="#zgloszenie/${r.id}"><i class="arrow left icon"></i>Wróć do zgłoszenia</a></div>
+ <div class="mk-sheet"><h1>Potwierdzenie zgłoszenia: ${k.t.toLowerCase()}</h1>
+ <div>Numer zgłoszenia: <strong>${r.no}</strong> · data zgłoszenia: ${plDate(r.reqDate)}</div>
+ <div>Zamówienie: ${ORDER.no} · dokument sprzedaży: ${ORDER.invoice}</div>
+ <table><tbody>${row('Klient',`${esc(r.first)} ${esc(r.last)}<br>${esc(r.email)}, tel. ${esc(r.phone)}`)}
+ ${row('Powód', lbl(isZ?RET_REASONS:CMP_REASONS, r.reason))}${row('Rodzaj reklamacji', lbl(CTYPES,r.ctype))}
+ ${row('Opis problemu', esc(r.faultDesc))}${row('Oczekiwany sposób rozwiązania', lbl(RESOLUTIONS,r.resolution))}
+ ${row('Wysyłka do sklepu', shipName(r))}${row('Odbiór po naprawie', back)}</tbody></table>
+ <table><thead><tr><th>Produkt</th><th>Kod</th><th style="width:70px">Ilość</th></tr></thead>
+ <tbody>${r.items.map(i=>{const it=ITEMS.find(x=>x.id===i.id); return `<tr><td>${it.name}</td><td>${it.code}</td><td>${i.qty}</td></tr>`;}).join('')}</tbody></table>
+ <p>${AGREE[r.kind]}</p>
+ <div class="mk-sign"><div>Podpis klienta</div><div>Podpis pracownika</div></div></div>`;
 }
 
 // ---------- nawigacja ----------
 function render(){
  const v=(location.hash||'#zamowienie').slice(1); const el=document.getElementById('view');
  document.getElementById('mk-modal')?.remove(); document.body.classList.remove('dimmable','dimmed','scrolling');
+ const pr=v.startsWith('wydruk/'); document.body.classList.toggle('mk-printing',pr);
+ document.getElementById('mk-doc').innerHTML = pr ? printView(v.split('/')[1]) : '';
+ if(pr){ window.scrollTo(0,0); return; }
  if(v==='dzis') el.innerHTML=orderView(false);
  else if(v.startsWith('zgloszenie/')) el.innerHTML=detailView(v.split('/')[1]);
  else el.innerHTML=orderView(true);
@@ -762,13 +824,14 @@ document.getElementById('mkReset').onclick=e=>{ e.preventDefault(); S={rmas:JSON
 document.getElementById('mkClear').onclick=e=>{ e.preventDefault(); S={rmas:[], next:12764}; sel={}; save(); location.hash='#zamowienie'; render(); };
 document.querySelectorAll('.sylius-admin-menu a[href="#dzis"]').forEach(a=>a.setAttribute('href','#zamowienie'));
 if(/czysto/.test(location.search)) document.body.classList.add('czysto');
-if(/seed/.test(location.search)) S.rmas.push({id:2, kind:'zwrot', no:'TCF-RMA-Z/12764/2026', date:'27 paź 2026, 14:11', items:[{id:'bat',qty:1},{id:'sd',qty:1}], who:'Przemysław (panel, telefon)', first:ORDER.first, last:ORDER.last, email:ORDER.email, reason:'purchase_by_mistake', notes:'Klient zamówił niepotrzebne akcesoria.', shipIn:'dpd', in_first:ORDER.first, in_last:ORDER.last, in_phone:ORDER.phone, in_street:ORDER.street, in_house:ORDER.house, in_flat:ORDER.flat, in_post:ORDER.post, in_city:ORDER.city, bankOwner:ORDER.first+' '+ORDER.last, bankNo:'', source:'tel', internal:'Klient dzwonił 27.10 o 14:05', mail:true});
+if(/seed/.test(location.search)) S.rmas.push({id:2, kind:'zwrot', no:'TCF-RMA-Z/12764/2026', date:'27 paź 2026, 14:11', reqDate:'2026-10-27', items:[{id:'bat',qty:1},{id:'sd',qty:1}], who:'Przemysław (panel, telefon)', first:ORDER.first, last:ORDER.last, email:ORDER.email, phone:ORDER.phone, reason:'purchase_by_mistake', notes:'Klient zamówił niepotrzebne akcesoria.', shipIn:'dpd', in_first:ORDER.first, in_last:ORDER.last, in_phone:ORDER.phone, in_street:ORDER.street, in_house:ORDER.house, in_flat:ORDER.flat, in_post:ORDER.post, in_city:ORDER.city, bankOwner:ORDER.first+' '+ORDER.last, bankNo:'', source:'tel', internal:'Klient dzwonił 27.10 o 14:05', mail:true});
 window.addEventListener('hashchange',render); render();
-const dm=(location.search.match(/demo=(zwrot|reklamacja|zaznacz)/)||[])[1];
-if(dm){ sel={bat:true,sd:true}; render(); const b=document.getElementById('bulk'); b.value=dm==='reklamacja'?'reklamacja':'zwrot'; b.dispatchEvent(new Event('change'));
+const dm=(location.search.match(/demo=(zwrot|reklamacja|naprawa|zaznacz)/)||[])[1];
+if(dm){ sel={bat:true,sd:true}; render(); const b=document.getElementById('bulk'); b.value=dm==='zaznacz'?'zwrot':dm; b.dispatchEvent(new Event('change'));
  if(dm!=='zaznacz'){ openModal(b.value,['bat','sd']); const f=document.getElementById('rmaForm'); const pick=(n,v)=>{const r=f.querySelector(`[name=${n}][value=${v}]`); if(r) r.checked=true;};
   f.source.value='tel'; f.agree.checked=true; f.querySelector('.rqty[data-id=bat]').value=1;
   if(dm==='zwrot'){ pick('reason','purchase_by_mistake'); f.shipIn.value='dpd'; }
+  else if(dm==='naprawa'){ f.faultDesc.value='Akumulator po okresie gwarancji nie trzyma ładunku. Bez akcesoriów, stan dobry.'; f.shipIn.value='dpd'; f.shipBack.value='dpd'; }
   else { pick('ctype','warranty'); pick('reason','detected_defect_during_use'); f.faultDate.value='2026-10-26'; f.faultDesc.value='Akumulator nie ładuje się do pełna, karta zgłasza błąd zapisu. Bez akcesoriów, stan dobry.'; pick('resolution','replacement'); f.shipIn.value='dpd'; f.shipBack.value='dpd'; }
   f.dispatchEvent(new Event('change')); } }
 </script>
