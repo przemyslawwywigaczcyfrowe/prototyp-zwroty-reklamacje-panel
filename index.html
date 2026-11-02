@@ -436,6 +436,25 @@ body.mk-printing #mk-doc{display:block;background:#fff;min-height:100vh;padding:
 .mk-sheet .mk-sign{display:flex;gap:48px;margin-top:56px}
 .mk-sheet .mk-sign div{flex:1;border-top:1px solid #000;padding-top:4px;text-align:center}
 @media print{.mk-bar,.mk-doc-tools{display:none!important} body.mk-printing #mk-doc{padding:0}}
+/* Okno zgłoszenia: tylko siatka i szerokości, kolory i kontrolki zostają z panelu */
+#rmaForm .mk-row{display:grid;grid-template-columns:200px minmax(0,1fr);column-gap:24px;align-items:start;margin:0 0 14px}
+#rmaForm .mk-lab{padding-top:.75em}
+#rmaForm .mk-row:has(.ui.checkbox) .mk-lab,#rmaForm .mk-row:has(.mk-sum) .mk-lab{padding-top:0}
+#rmaForm .mk-row>.field{margin:0}
+#rmaForm .mk-lab{font-weight:700;font-size:.92857143em;color:rgba(0,0,0,.87);text-align:right}
+/* Jedna prawa krawędź (560 px) dla pól średnich, par pól i opisu */
+#rmaForm .mk-s{max-width:180px}
+#rmaForm .mk-m,#rmaForm select.mk-m,#rmaForm textarea{max-width:560px}
+#rmaForm .mk-pair{display:flex;gap:8px;max-width:560px}
+#rmaForm .mk-row .ui.checkbox,#rmaForm .mk-sum{max-width:560px}
+#rmaForm .mk-pair .mk-f{flex:1;min-width:0}
+#rmaForm .mk-pair .mk-xs{flex:0 0 90px}
+#rmaForm .mk-pair .mk-s{flex:0 0 120px}
+#rmaForm .mk-inline{display:flex;flex-wrap:wrap;gap:6px 28px}
+#rmaForm .mk-stack{display:grid;gap:8px}
+#rmaForm .ui.dividing.header{margin:24px 0 16px}
+#rmaForm .ui.dividing.header:first-of-type{margin-top:0}
+#rmaForm .field.error .mk-sum, #rmaForm .field.error .ui.checkbox label{color:#9f3a38}
 </style>
 </head>
 <body>
@@ -543,13 +562,17 @@ const RESOLUTIONS=[['repair','Naprawa'],['replacement','Wymiana'],['refund','Zwr
 const SHIP_IN=[['dpd','Kurier DPD (odbiór w następny dzień roboczy, paczka gabarytowa 39 zł)'],['inpost','Paczkomat 24/7 InPost'],['own','Wysyłka własna'],['salon','Dostarczę do salonu Cyfrowe.pl']];
 const SHIP_BACK=[['dpd','Kurier DPD'],['salon','Odbiór w salonie']];
 const SOURCES=[['parcel','Paczka z formularzem'],['tel','Telefon'],['mail','E-mail'],['chat','Czat'],['salon','Salon']];
-// Prefiks naprawy odpłatnej przykładowy, do potwierdzenia z Verto.
+// Naprawa odpłatna to w Verto zgłoszenie do serwisu (TCF-RMA/…) z rodzajem reklamacji "odpłatna".
 const KIND = {zwrot:{t:'Zwrot', icon:'undo', btn:'Zgłoś zwrot', pfx:'TCF-RMA-Z', done:'został utworzony i przekazany'},
  reklamacja:{t:'Reklamacja', icon:'wrench', btn:'Zgłoś reklamację', pfx:'TCF-RMA-R', done:'została utworzona i przekazana'},
- naprawa:{t:'Naprawa odpłatna', icon:'cogs', btn:'Zgłoś naprawę odpłatną', pfx:'TCF-RMA-N', done:'została utworzona i przekazana'}};
+ naprawa:{t:'Naprawa odpłatna', icon:'cogs', btn:'Zgłoś naprawę odpłatną', pfx:'TCF-RMA', done:'została utworzona i przekazana'}};
+const PAID_COST = 'przekazuję sprzęt do naprawy odpłatnej i akceptuję koszt pośrednictwa od 59 do 149 zł, zależnie od kraju, w którym jest wykonywana usługa, i od gabarytu sprzętu. Do kosztu pośrednictwa zostanie doliczony koszt ekspertyzy lub naprawy.';
 const AGREE = {zwrot:'Klient oświadczył, że odstępuje od umowy sprzedaży towarów zaznaczonych powyżej.',
  reklamacja:'Klient zapoznał się z warunkami reklamacji i rękojmi zawartymi w Regulaminie Sklepu.',
- naprawa:'Klient wie, że naprawa jest odpłatna, i zgadza się na przekazanie sprzętu do serwisu.'};
+ naprawa:'Klient oświadczył, że '+PAID_COST.replace('przekazuję','przekazuje').replace('akceptuję','akceptuje')};
+// Oświadczenie na wydruku, który podpisuje klient. Reklamacja: tekst z dzisiejszego dokumentu. Naprawa: nowy tekst od obsługi klienta.
+const PRINT_AGREE = {reklamacja:'Oświadczam, że zapoznałem się z obowiązującymi Zasadami Obsługi Zleceń Serwisowych sklepu www.cyfrowe.pl',
+ naprawa:'Oświadczam, że '+PAID_COST};
 const lbl = (arr,v) => (arr.find(x=>x[0]===v)||['',''])[1];
 const money = n => n.toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d),)/g,' ')+' zł';
 const esc = s => String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -558,7 +581,7 @@ const INITIAL = [{id:1, kind:'reklamacja', no:'TCF-RMA-R/12763/2026', date:'27 p
  reqDate:'2026-10-27', who:'Klient (strona sklepu)', first:ORDER.first, last:ORDER.last, email:ORDER.email, phone:ORDER.phone, ctype:'warranty', reason:'detected_defect_during_use', faultDate:'2026-10-26',
  faultDesc:'Aparat nie włącza się. W komplecie bateria i ładowarka, stan dobry.', resolution:'repair',
  shipIn:'salon', in_salon:'Gdańsk, ul. Kartuska', shipBack:'salon', back_salon:'Gdańsk, ul. Kartuska', mail:true}];
-const KEY='mk-rma-panel-v4';
+const KEY='mk-rma-panel-v5';
 let S;
 function load(){ try{ const r=localStorage.getItem(KEY); S=r?JSON.parse(r):null; }catch(e){ S=null; } if(!S) S={rmas:JSON.parse(JSON.stringify(INITIAL)), next:12764}; }
 function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
@@ -652,54 +675,71 @@ function bindOrder(){
 }
 
 // ---------- okno zgłoszenia ----------
-const input = (name,label,val,req,cls,type) => `<div class="${cls||''} ${req?'required ':''}field"><label>${label}</label><input type="${type||'text'}" name="${name}" value="${esc(val)}"></div>`;
-const select = (name,label,opts,req) => `<div class="${req?'required ':''}field"><label>${label}</label><select name="${name}" class="ui dropdown"><option value="">Wybierz</option>${opts.map(o=>`<option value="${esc(o[0])}">${o[1]}</option>`).join('')}</select></div>`;
-const radios = (name,label,opts) => `<div class="required grouped fields" data-req="${name}"><label>${label}</label>${opts.map((o,i)=>`<div class="field"><div class="ui radio checkbox"><input type="radio" name="${name}" id="${name}${i}" value="${o[0]}" class="hidden"><label for="${name}${i}">${o[1]}</label></div></div>`).join('')}</div>`;
-const address = p => `<div data-sub="${p}-dpd" style="display:none">
- <div class="two fields">${input(p+'_first','Imię',ORDER.first,1)}${input(p+'_last','Nazwisko',ORDER.last,1)}</div>
- <div class="two fields">${input(p+'_phone','Numer telefonu',ORDER.phone)}${input(p+'_company','Firma',ORDER.company)}</div>
- <div class="three fields">${input(p+'_street','Ulica',ORDER.street,1,'eight wide')}${input(p+'_house','Nr domu',ORDER.house,1,'four wide')}${input(p+'_flat','Nr mieszkania',ORDER.flat,0,'four wide')}</div>
- <div class="two fields">${input(p+'_post','Kod pocztowy',ORDER.post,1,'six wide')}${input(p+'_city','Miejscowość',ORDER.city,1,'ten wide')}</div>
- ${input(p+'_note','Wskazówki dla kuriera','')}</div>
- <div data-sub="${p}-salon" style="display:none">${select(p+'_salon','Salon',SALONS.map(s=>[s,s]),1)}</div>`;
+// Układ jednej osi: etykieta zawsze w lewej kolumnie o stałej szerokości, pole zawsze w prawej.
+// Pola mają trzy szerokości: wąska (data, numer), średnia (tekst, lista), pełna (opis).
+// row(etykieta, pole, wymagane, nazwa do sprawdzenia, atrybuty wiersza)
+const reqMark = '<span style="color:#db2828"> *</span>';
+const row = (label,ctrl,need,attr) => `<div class="mk-row" ${attr||''}><div class="mk-lab">${label}${need?reqMark:''}</div><div class="field"${need?` data-need="${need}"`:''}>${ctrl}</div></div>`;
+const txt = (name,val,w,ph) => `<input type="text" name="${name}" value="${esc(val)}" class="mk-${w||'m'}"${ph?` placeholder="${ph}"`:''}>`;
+const pick = (name,opts) => `<select name="${name}" class="ui dropdown mk-m"><option value="">Wybierz</option>${opts.map(o=>`<option value="${esc(o[0])}">${o[1]}</option>`).join('')}</select>`;
+const radios = (name,opts,stack) => `<div class="${stack?'mk-stack':'mk-inline'}">${opts.map((o,i)=>`<div class="ui radio checkbox"><input type="radio" name="${name}" id="${name}${i}" value="${o[0]}" class="hidden"><label for="${name}${i}">${o[1]}</label></div>`).join('')}</div>`;
+const pair = (...c) => `<div class="mk-pair">${c.join('')}</div>`;
+// Dane z zamówienia jako jedna linia z linkiem "Zmień". Pola rozwijają się, gdy klient podał inne.
+const summary = (p,label,text) => row(label, `<div class="mk-sum">${text} · <a href="#" data-edit="${p}">Zmień</a></div>`, 0, `data-sum="${p}"`);
+const addrText = `${ORDER.first} ${ORDER.last}, ul. ${ORDER.street} ${ORDER.house}/${ORDER.flat}, ${ORDER.post} ${ORDER.city}, tel. ${ORDER.phone}`;
+const address = (p,label) => `<div data-sub="${p}-dpd" style="display:none">${summary(p,label,addrText)}
+ <div data-det="${p}" style="display:none">
+ ${row('Imię i nazwisko', pair(txt(p+'_first',ORDER.first,'f'),txt(p+'_last',ORDER.last,'f')), p+'_last')}
+ ${row('Ulica, nr domu, nr m.', pair(txt(p+'_street',ORDER.street,'f'),txt(p+'_house',ORDER.house,'xs'),txt(p+'_flat',ORDER.flat,'xs')), p+'_street')}
+ ${row('Kod i miejscowość', pair(txt(p+'_post',ORDER.post,'s'),txt(p+'_city',ORDER.city,'f')), p+'_city')}
+ ${row('Telefon', txt(p+'_phone',ORDER.phone,'s'))}
+ ${row('Wskazówki dla kuriera', txt(p+'_note',''))}</div></div>
+ ${row('Salon', pick(p+'_salon',SALONS.map(s=>[s,s])), p+'_salon', `data-sub="${p}-salon" style="display:none"`)}`;
 
 function openModal(kind, ids){
  const k=KIND[kind], isZ=kind==='zwrot', isN=kind==='naprawa', isW=false;
  const its=ids.map(id=>ITEMS.find(i=>i.id===id));
  const hist = it => ['zwrot','reklamacja','naprawa'].map(t=>reported(it.id,t)?`<br><small>${{zwrot:'zwrócone',reklamacja:'w reklamacjach',naprawa:'w naprawach odpłatnych'}[t]}: ${reported(it.id,t)}</small>`:'').join('');
- let b = `<table class="ui celled compact small table"><thead><tr><th>Element</th><th class="center aligned">Ilość w zamówieniu</th><th class="center aligned">${isZ?'Do zwrotu':'Do zgłoszenia'}</th>${isZ?'<th class="right aligned">Wartość</th>':''}</tr></thead>
+ let b = `<h4 class="ui dividing header">Produkty</h4><table class="ui celled compact small table"><thead><tr><th>Element</th><th class="center aligned">Ilość w zamówieniu</th><th class="center aligned">${isZ?'Do zwrotu':'Do zgłoszenia'}</th>${isZ?'<th class="right aligned">Wartość</th>':''}</tr></thead>
  <tbody>${its.map(it=>`<tr><td>${productHeader(it)}</td><td class="center aligned">${it.qty}${hist(it)}</td>
  <td class="center aligned"><div class="ui mini input"><input type="number" class="rqty" data-id="${it.id}" min="1" max="${remaining(it)}" value="${remaining(it)}"></div></td>${isZ?`<td class="right aligned rval" data-id="${it.id}"></td>`:''}</tr>`).join('')}</tbody>
  ${isZ?'<tfoot><tr><th colspan="3" class="right aligned">Do zwrotu łącznie</th><th class="right aligned" id="rsum"></th></tr></tfoot>':''}</table>
- <div class="three fields">${select('source','Skąd przyszło zgłoszenie',SOURCES,1)}${select('srcSalon','Salon przyjmujący',SALONS.map(s=>[s,s]),1).replace('<div class="','<div data-sub="src-salon" style="display:none" class="')}
- <div class="required field"><label>Data zgłoszenia</label><input type="date" name="reqDate" value="${today()}" max="${today()}"></div></div>
- <h4 class="ui dividing header">Dane klienta</h4>
- <div class="two fields">${input('first','Imię',ORDER.first,1)}${input('last','Nazwisko',ORDER.last,1)}</div>
- <div class="two fields">${input('email','Email',ORDER.email,1)}${input('phone','Numer telefonu',ORDER.phone,1)}</div>`;
+ <h4 class="ui dividing header">Przyjęcie zgłoszenia</h4>
+ ${row('Skąd przyszło', radios('source',[['tel','Telefon'],['mail','E-mail'],['chat','Czat'],['salon','Salon'],['parcel','Paczka z formularzem']]), 'source')}
+ ${row('Salon przyjmujący', pick('srcSalon',SALONS.map(s=>[s,s])), 'srcSalon', 'data-sub="src-salon" style="display:none"')}
+ ${row('Data zgłoszenia', `<input type="date" name="reqDate" value="${today()}" max="${today()}" class="mk-s">`, 'reqDate')}
+ <h4 class="ui dividing header">Klient</h4>
+ ${summary('client','Dane klienta',`${ORDER.first} ${ORDER.last} · ${ORDER.email} · tel. ${ORDER.phone}`)}
+ <div data-det="client" style="display:none">
+ ${row('Imię i nazwisko', pair(txt('first',ORDER.first,'f'),txt('last',ORDER.last,'f')), 'last')}
+ ${row('E-mail', txt('email',ORDER.email), 'email')}
+ ${row('Telefon', txt('phone',ORDER.phone,'s'), 'phone')}</div>`;
+ const desc = row('Opis problemu', `<textarea name="faultDesc" rows="3" placeholder="Co się dzieje, dołączone akcesoria, stan sprzętu"></textarea>`, 'faultDesc');
+ const shipIn = row('Dostarczenie do sklepu', pick('shipIn',SHIP_IN), 'shipIn') + address('in','Adres odbioru paczki');
+ const shipBack = row('Odbiór po naprawie', pick('shipBack',SHIP_BACK), 'shipBack') + address('back','Adres dostawy');
  if(isN){
-  b += `<h4 class="ui dividing header">Opis zgłoszenia</h4>
-  <div class="field required"><label>Opis problemu / Dołączone akcesoria / Stan sprzętu</label><textarea name="faultDesc" rows="2"></textarea></div>
-  <h4 class="ui dividing header">Wysyłka</h4>${select('shipIn','Metoda wysyłki',SHIP_IN,1)}${address('in')}
-  <h4 class="ui dividing header">Odbiór po naprawie</h4>${select('shipBack','Metoda odbioru',SHIP_BACK,1)}${address('back')}`;
+  b += `<h4 class="ui dividing header">Naprawa</h4>${desc}
+  <h4 class="ui dividing header">Wysyłka</h4>${shipIn}${shipBack}`;
  } else if(isZ){
-  b += `<h4 class="ui dividing header">Powód zwrotu</h4>${radios('reason','Wybierz powód',RET_REASONS)}
-  <div class="field"><label>Uwagi (opcjonalne)</label><textarea name="notes" rows="2"></textarea></div>
-  <h4 class="ui dividing header">Wysyłka</h4>${select('shipIn','Metoda wysyłki',SHIP_IN,1)}${address('in')}
-  <h4 class="ui dividing header">Dane do zwrotu środków</h4>
-  <p>W razie potrzeby zwrotu środków klient otrzyma je tą samą metodą, którą opłacił zamówienie. Jeśli nie będzie to możliwe, przelejemy je na konto poniżej.</p>
-  <div class="two fields">${input('bankOwner','Nazwa odbiorcy',ORDER.first+' '+ORDER.last,1)}${input('bankNo','Nr konta bankowego','',1)}</div>`;
+  b += `<h4 class="ui dividing header">Zwrot</h4>
+  ${row('Powód zwrotu', radios('reason',RET_REASONS,1), 'reason')}
+  ${row('Uwagi', `<textarea name="notes" rows="2" placeholder="Opcjonalnie"></textarea>`)}
+  <h4 class="ui dividing header">Wysyłka i zwrot środków</h4>${shipIn}
+  ${row('Nazwa odbiorcy', txt('bankOwner',ORDER.first+' '+ORDER.last), 'bankOwner')}
+  ${row('Nr konta bankowego', txt('bankNo','','m','Gdy zwrot tą samą metodą płatności nie jest możliwy'), 'bankNo')}`;
  } else {
-  b += `<h4 class="ui dividing header">Opis zgłoszenia</h4>
-  <div class="two fields">${radios('ctype','Rodzaj reklamacji',CTYPES)}${radios('reason','Wybierz powód',CMP_REASONS)}</div>
-  <div class="two fields"><div class="four wide required field"><label>Data wykrycia usterki</label><input type="date" name="faultDate"></div><div class="twelve wide required field"><label>Opis problemu / Dołączone akcesoria / Stan sprzętu</label><textarea name="faultDesc" rows="2"></textarea></div></div>
-  ${isW?`<div class="field"><label>Oczekiwany sposób rozwiązania</label><select class="ui dropdown" disabled><option>Wymiana</option></select></div>`:radios('resolution','Oczekiwany sposób rozwiązania',RESOLUTIONS)}
-  <h4 class="ui dividing header">Wysyłka</h4>${select('shipIn','Metoda wysyłki',SHIP_IN,1)}${address('in')}
-  <h4 class="ui dividing header">${isW?'Odbiór nowego produktu':'Odbiór po naprawie'}</h4>${select('shipBack','Metoda odbioru',SHIP_BACK,1)}${address('back')}`;
+  b += `<h4 class="ui dividing header">Reklamacja</h4>
+  ${row('Rodzaj reklamacji', radios('ctype',CTYPES), 'ctype')}
+  ${row('Powód', radios('reason',CMP_REASONS,1), 'reason')}
+  ${row('Data wykrycia usterki', `<input type="date" name="faultDate" max="${today()}" class="mk-s">`, 'faultDate')}
+  ${desc}
+  ${row('Oczekiwane rozwiązanie', radios('resolution',RESOLUTIONS), 'resolution')}
+  <h4 class="ui dividing header">Wysyłka</h4>${shipIn}${shipBack}`;
  }
- b += `<h4 class="ui dividing header">Zgłoszenie przyjął pracownik</h4>
- <div class="field">${input('internal','Notatka wewnętrzna','')}</div>
- <div class="required field" data-req="agree"><div class="ui checkbox"><input type="checkbox" id="agree" name="agree" class="hidden"><label for="agree">${AGREE[kind]}</label></div></div>
- <div class="field"><div class="ui checkbox"><input type="checkbox" id="mail" name="mail" class="hidden" checked><label for="mail">Wyślij klientowi e-mail z potwierdzeniem zgłoszenia</label></div></div>`;
+ b += `<h4 class="ui dividing header">Potwierdzenie</h4>
+ ${row('Notatka wewnętrzna', `<textarea name="internal" rows="2" placeholder="Klient jej nie zobaczy"></textarea>`)}
+ ${row('Oświadczenie klienta', `<div class="ui checkbox"><input type="checkbox" id="agree" name="agree" class="hidden"><label for="agree">${AGREE[kind]}</label></div>`, 'agree')}
+ ${row('E-mail do klienta', `<div class="ui checkbox"><input type="checkbox" id="mail" name="mail" class="hidden" checked><label for="mail">Wyślij potwierdzenie zgłoszenia na ${esc(ORDER.email)}</label></div>`)}`;
  document.body.classList.add('dimmable','dimmed','scrolling');
  document.body.insertAdjacentHTML('beforeend', `<div class="ui dimmer modals page transition visible active" id="mk-modal" style="display:flex !important;">
  <div class="ui large modal transition visible active scrolling" style="display:block !important;">
@@ -715,22 +755,24 @@ function openModal(kind, ids){
  document.addEventListener('keydown',function esc(e){ if(e.key==='Escape'){ close(); document.removeEventListener('keydown',esc);} });
  const upd=()=>{
   f.querySelector('[data-sub="src-salon"]').style.display = f.source.value==='salon'?'':'none';
+  f.querySelector('label[for=mail]').textContent = 'Wyślij potwierdzenie zgłoszenia na '+f.email.value;
   ['in','back'].forEach(p=>{const s=f.querySelector(`[name=${p==='in'?'shipIn':'shipBack'}]`); f.querySelectorAll(`[data-sub^="${p}-"]`).forEach(x=>x.style.display=(s&&x.dataset.sub===p+'-'+s.value)?'':'none');});
   if(isZ){ let sum=0; f.querySelectorAll('.rqty').forEach(q=>{ const it=ITEMS.find(i=>i.id===q.dataset.id); const v=Math.max(0,Math.min(+q.value||0, remaining(it))); sum+=v*it.price; f.querySelector(`.rval[data-id="${it.id}"]`).textContent=money(v*it.price); }); document.getElementById('rsum').textContent=money(sum); }
  };
  // Paczka z formularzem: produkt już jest w sklepie. Salon: klient zostawia sprzęt w salonie, który przyjął zgłoszenie.
- f.source.addEventListener('change',()=>{ if(f.source.value==='parcel'){ f.shipIn.value='own'; } if(f.source.value==='salon'){ f.shipIn.value='salon'; } upd(); });
+ f.addEventListener('change',e=>{ if(e.target.name!=='source') return; if(f.source.value==='parcel'){ f.shipIn.value='own'; } if(f.source.value==='salon'){ f.shipIn.value='salon'; } upd(); });
+ f.addEventListener('click',e=>{ const a=e.target.closest('[data-edit]'); if(!a) return; e.preventDefault(); const p=a.dataset.edit; f.querySelector(`[data-sum="${p}"]`).style.display='none'; f.querySelector(`[data-det="${p}"]`).style.display=''; });
  f.srcSalon.addEventListener('change',()=>{ if(f.shipIn.value==='salon' && f.in_salon) f.in_salon.value=f.srcSalon.value; });
  f.addEventListener('change',upd); f.addEventListener('input',upd); upd();
  f.addEventListener('submit',e=>{
   e.preventDefault(); let ok=true; f.querySelectorAll('.field,.fields').forEach(x=>x.classList.remove('error'));
   f.querySelectorAll('.rqty').forEach(q=>{ const v=+q.value; if(!(v>=1 && v<=+q.max)){ q.closest('.input').parentNode.classList.add('error'); q.closest('td').classList.add('error'); ok=false; } else q.closest('td').classList.remove('error'); });
-  f.querySelectorAll('.required.field, .required.grouped.fields').forEach(fd=>{
-   const hid=fd.closest('[data-sub]'); if(hid && hid.style.display==='none') return;
-   const r=fd.dataset.req;
-   if(r==='agree'){ if(!f.agree.checked){fd.classList.add('error');ok=false;} return; }
-   if(r){ if(!f.querySelector(`[name="${r}"]:checked`)){fd.classList.add('error');ok=false;} return; }
-   const inp=fd.querySelector('input,select,textarea'); if(inp && !inp.disabled && !inp.value.trim()){fd.classList.add('error');ok=false;}
+  // Ukryte wiersze (inny wariant wysyłki, zwinięte dane z zamówienia) nie są sprawdzane.
+  f.querySelectorAll('[data-need]').forEach(fd=>{
+   if(fd.offsetParent===null) return;
+   const el=f.elements[fd.dataset.need];
+   const bad = el instanceof RadioNodeList ? !el.value : el.type==='checkbox' ? !el.checked : !el.value.trim();
+   if(bad){ fd.classList.add('error'); ok=false; }
   });
   f.classList.toggle('error',!ok); if(!ok){ wrap.scrollTop=0; return; }
   const data={}; new FormData(f).forEach((v,k)=>data[k]=v);
@@ -763,7 +805,7 @@ function detailView(id){
  <tfoot><tr><th colspan="2" class="right aligned">Łącznie</th><th class="right aligned">${money(total)}</th></tr></tfoot></table></div>
  <h4 class="ui attached styled header top">Szczegóły zgłoszenia</h4>
  <div class="ui attached segment"><table class="ui definition compact small table"><tbody>
- ${row('Rodzaj', k.t)}${row('Data zgłoszenia', plDate(r.reqDate))}${row('Dokument sprzedaży', ORDER.invoice)}${row('Rodzaj reklamacji', lbl(CTYPES,r.ctype))}
+ ${row('Rodzaj', k.t)}${row('Data zgłoszenia', plDate(r.reqDate))}${row('Dokument sprzedaży', ORDER.invoice)}${row('Rodzaj reklamacji', r.kind==='naprawa'?'Odpłatna':lbl(CTYPES,r.ctype))}
  ${row('Powód', lbl(isZ?RET_REASONS:CMP_REASONS, r.reason))}
  ${row('Data wykrycia usterki', r.faultDate?r.faultDate.split('-').reverse().join('.'):'')}
  ${row('Opis problemu', esc(r.faultDesc))}${row('Oczekiwany sposób rozwiązania', lbl(RESOLUTIONS,r.resolution))}
@@ -784,26 +826,42 @@ function detailView(id){
 }
 
 // ---------- wydruk potwierdzenia ----------
-// Układ przykładowy. Wydruk ma być taki sam jak dokument, który klient dostaje dziś po zgłoszeniu na stronie.
+// Reklamacja i naprawa odpłatna: układ jak w dokumentach TCF-RMA-R/12764/2026 i TCF-RMA/12765/2026 od obsługi klienta (29.10.2026).
+// Na wydruku naprawy dochodzi wiersz "Rodzaj zgłoszenia: Naprawa odpłatna", którego dziś brakuje. Wydruk zwrotu czeka na wzór.
 function printView(id){
  const r=S.rmas.find(x=>String(x.id)===String(id)); if(!r) return '';
- const k=KIND[r.kind], isZ=r.kind==='zwrot';
+ const isZ=r.kind==='zwrot', isN=r.kind==='naprawa';
  const row=(a,b)=>b?`<tr><th style="width:34%">${a}</th><td>${b}</td></tr>`:'';
- const back = r.shipBack ? (r.shipBack==='dpd'?'Kurier DPD':'Odbiór w salonie '+esc(r.back_salon)) : '';
- return `<div class="mk-doc-tools" style="max-width:780px;margin:0 auto 16px;display:flex;gap:8px;flex-wrap:wrap">
+ const salon=s=>'Cyfrowe.pl Salon '+String(s||'').split(',')[0];
+ const dIn = r.shipIn==='salon' ? salon(r.in_salon) : shipName(r);
+ const dBack = r.shipBack ? (r.shipBack==='salon' ? salon(r.back_salon) : 'Kurier DPD') : '';
+ const title = isZ ? 'Zgłoszenie zwrotu nr' : isN ? 'Zgłoszenie do serwisu nr' : 'Zgłoszenie reklamacyjne nr';
+ const time = (String(r.date).split(', ')[1]||'');
+ const gear = r.items.map(i=>{const it=ITEMS.find(x=>x.id===i.id); return esc(it.name)+(i.qty>1?` (${i.qty} szt.)`:'');}).join('<br>');
+ const statement = isZ ? 'Oświadczam, że odstępuję od umowy sprzedaży sprzętu wymienionego powyżej.' : PRINT_AGREE[r.kind];
+ return `<div class="mk-doc-tools" style="max-width:780px;margin:0 auto 16px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
  <button type="button" class="ui labeled icon primary button" onclick="window.print()"><i class="print icon"></i>Drukuj</button>
- <a class="ui labeled icon button" href="#zgloszenie/${r.id}"><i class="arrow left icon"></i>Wróć do zgłoszenia</a></div>
- <div class="mk-sheet"><h1>Potwierdzenie zgłoszenia: ${k.t.toLowerCase()}</h1>
- <div>Numer zgłoszenia: <strong>${r.no}</strong> · data zgłoszenia: ${plDate(r.reqDate)}</div>
- <div>Zamówienie: ${ORDER.no} · dokument sprzedaży: ${ORDER.invoice}</div>
- <table><tbody>${row('Klient',`${esc(r.first)} ${esc(r.last)}<br>${esc(r.email)}, tel. ${esc(r.phone)}`)}
- ${row('Powód', lbl(isZ?RET_REASONS:CMP_REASONS, r.reason))}${row('Rodzaj reklamacji', lbl(CTYPES,r.ctype))}
- ${row('Opis problemu', esc(r.faultDesc))}${row('Oczekiwany sposób rozwiązania', lbl(RESOLUTIONS,r.resolution))}
- ${row('Wysyłka do sklepu', shipName(r))}${row('Odbiór po naprawie', back)}</tbody></table>
- <table><thead><tr><th>Produkt</th><th>Kod</th><th style="width:70px">Ilość</th></tr></thead>
- <tbody>${r.items.map(i=>{const it=ITEMS.find(x=>x.id===i.id); return `<tr><td>${it.name}</td><td>${it.code}</td><td>${i.qty}</td></tr>`;}).join('')}</tbody></table>
- <p>${AGREE[r.kind]}</p>
- <div class="mk-sign"><div>Podpis klienta</div><div>Podpis pracownika</div></div></div>`;
+ <a class="ui labeled icon button" href="#zgloszenie/${r.id}"><i class="arrow left icon"></i>Wróć do zgłoszenia</a>
+ ${isZ?'<span class="ui small orange basic label">Układ przykładowy: czekamy na wzór wydruku zwrotu od obsługi klienta</span>':''}</div>
+ <div class="mk-sheet">
+ <div style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap">
+  <div>Cyfrowe.pl Sp. z o.o.<br>ul. Łostowicka 25A<br>80-121 Gdańsk<br>Infolinia: 58 326 40 40<br>Email: serwis@cyfrowe.pl</div>
+  <div style="text-align:right"><h1>${title}: ${r.no}</h1>z dnia ${r.reqDate} ${time}<br><strong>ORYGINAŁ / KOPIA</strong></div></div>
+ <table><tbody>
+ ${isN?row('Rodzaj zgłoszenia','<strong>Naprawa odpłatna</strong>'):''}
+ ${!isZ&&!isN?row('Reklamacja z tytułu', lbl(CTYPES,r.ctype)):''}
+ ${row('Imię i nazwisko', `${esc(r.first)} ${esc(r.last)}`)}${row('Telefon kontaktowy', esc(r.phone))}${row('E-mail', esc(r.email))}
+ ${row('Sprzęt', gear)}${row('Numer zamówienia', ORDER.no)}${row('Data zakupu', '2026-10-27')}
+ ${!isN?row('Powód', lbl(isZ?RET_REASONS:CMP_REASONS, r.reason)):''}
+ ${row('Data wykrycia usterki', r.faultDate?r.faultDate+' 00:00:00':'')}
+ ${row(isN?'Opis potrzeby serwisowej':'Opis sytuacji', esc(r.faultDesc||r.notes))}
+ ${row('Oczekiwany sposób rozwiązania', lbl(RESOLUTIONS,r.resolution))}
+ ${row('Sposób dostarczenia', dIn)}${row('Sposób odbioru', dBack)}</tbody></table>
+ <p>${statement}</p>
+ <div class="mk-sign"><div>Pieczątka/podpis przyjmującego</div><div>Data i podpis zlecającego</div></div>
+ <h3 style="margin-top:40px">ODBIÓR TOWARU</h3>
+ <p>Potwierdzam odbiór sprzętu i nie wnoszę zastrzeżeń do jego kompletności i stanu technicznego</p>
+ <div class="mk-sign"><div>Pieczątka/podpis wydającego</div><div>Data i podpis odbierającego</div></div></div>`;
 }
 
 // ---------- nawigacja ----------
