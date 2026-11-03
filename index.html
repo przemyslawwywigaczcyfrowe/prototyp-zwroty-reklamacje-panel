@@ -838,11 +838,38 @@ function printView(id){
  const title = isZ ? 'Zgłoszenie zwrotu nr' : isN ? 'Zgłoszenie do serwisu nr' : 'Zgłoszenie reklamacyjne nr';
  const time = (String(r.date).split(', ')[1]||'');
  const gear = r.items.map(i=>{const it=ITEMS.find(x=>x.id===i.id); return esc(it.name)+(i.qty>1?` (${i.qty} szt.)`:'');}).join('<br>');
+ // Zwrot: układ według dokumentu TCF-RMA-Z/12766/2026, który klient dostaje po zgłoszeniu zwrotu na stronie.
+ if(isZ){
+  const d=String(r.reqDate||'').split('-').reverse().join('-'), tm=time?time+':00':'';
+  const via=({dpd:'Kurier DPD',inpost:'InPost Paczkomat 24/7',own:'Wysyłka własna',salon:salon(r.in_salon)})[r.shipIn]||'';
+  const f=(a,b)=>b?`<tr><th style="width:34%">${a}</th><td>${b}</td></tr>`:'';
+  return `<div class="mk-doc-tools" style="max-width:780px;margin:0 auto 16px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+ <button type="button" class="ui labeled icon primary button" onclick="window.print()"><i class="print icon"></i>Drukuj</button>
+ <a class="ui labeled icon button" href="#zgloszenie/${r.id}"><i class="arrow left icon"></i>Wróć do zgłoszenia</a></div>
+ <div class="mk-sheet">
+ <div>Cyfrowe.pl Sp. z o.o.<br>ul. Łostowicka 25A<br>80-121 Gdańsk<br>Infolinia: 58 326 40 40<br>Email: serwis@cyfrowe.pl</div>
+ <h1 style="margin-top:16px">Formularz zwrotu towaru</h1>
+ <div>z dnia: ${d} ${tm}</div><div>Zwrot nr: <strong>${r.no}</strong></div>
+ <h3>Oświadczenie o odstąpieniu od umowy zawartej na odległość</h3>
+ <p>Ja, ${esc(r.first)} ${esc(r.last)}, niniejszym informuję, że zgodnie z art. 27 ustawy z dnia 30.05.2014 r. (Dz.U. 2014 poz. 827) o prawach konsumenta odstępuję od umowy sprzedaży / dostawy następujących rzeczy:</p>
+ <table><tbody>${f('Numer Zamówienia:', ORDER.no)}${f('Zwracane produkty:', gear)}${f('Sposób dostarczenia:', via)}</tbody></table>
+ <strong>Dane konsumenta:</strong>
+ <table><tbody>${f('Imię i nazwisko:', `${esc(r.first)} ${esc(r.last)}`)}${f('Email kontaktowy:', esc(r.email))}${f('Zgoda na zwrot pieniędzy na konto bankowe nr:', esc(r.bankNo))}</tbody></table>
+ <strong>DALSZE KROKI:</strong>
+ <ol style="padding-left:20px;margin:6px 0 12px">
+ <li>Wydrukuj niniejszy dokument i dołącz go do paczki ze zwracanym produktem. Jeśli nie masz możliwości wydrukowania go, zamiast tego napisz na kartce swoje imię i nazwisko, nr telefonu oraz numer RMA, który znajdziesz w treści maila.</li>
+ <li>Do paczki dołącz również dowód zakupu, który jednoznacznie potwierdza nabycie towaru w naszym sklepie, np. paragon, fakturę, wyciąg z karty lub dokument gwarancyjny podpisany przez pracownika Cyfrowe.pl</li>
+ <li>Bezpiecznie zapakuj paczkę na czas transportu.</li>
+ <li>Niezwłocznie (tj. nie później niż 14 dni od dnia zgłoszenia chęci odstąpienia od umowy) nadaj paczkę na swój koszt, na adres siedziby firmy Cyfrowe.pl Sp. z o.o., 80-121 Gdańsk, ul. Łostowicka 25A z dopiskiem ZWROT.</li>
+ <li>Zwrotu możesz także dokonać osobiście w jednym z naszych sklepów stacjonarnych.</li></ol>
+ <p>Pełny opis zasad zwrotu towarów znajduje się na stronie www.cyfrowe.pl/zasady-sprzedazy/zwrot-towaru.html</p>
+ <div class="mk-sign"><div style="flex:0 0 45%;margin-left:auto">Podpis konsumenta</div></div></div>`;
+ }
  const statement = isZ ? 'Oświadczam, że odstępuję od umowy sprzedaży sprzętu wymienionego powyżej.' : PRINT_AGREE[r.kind];
  return `<div class="mk-doc-tools" style="max-width:780px;margin:0 auto 16px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
  <button type="button" class="ui labeled icon primary button" onclick="window.print()"><i class="print icon"></i>Drukuj</button>
  <a class="ui labeled icon button" href="#zgloszenie/${r.id}"><i class="arrow left icon"></i>Wróć do zgłoszenia</a>
- ${isZ?'<span class="ui small orange basic label">Układ przykładowy: czekamy na wzór wydruku zwrotu od obsługi klienta</span>':''}</div>
+ </div>
  <div class="mk-sheet">
  <div style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap">
   <div>Cyfrowe.pl Sp. z o.o.<br>ul. Łostowicka 25A<br>80-121 Gdańsk<br>Infolinia: 58 326 40 40<br>Email: serwis@cyfrowe.pl</div>
