@@ -537,6 +537,8 @@ body.mk-printing #mk-doc{display:block;background:#fff;min-height:100vh;padding:
 <div id="mk-doc"></div>
 <nav class="mk-bar" id="mkbar">
 <b title="Zgłoszenia zapisują się tylko w tej przeglądarce i nie trafiają do Verto">Makieta, nic nie trafia do Verto</b>
+<a href="?etap=1" id="mkE1" title="Zwrot i reklamacja w panelu, bez zmian w Verto">Etap 1</a>
+<a href="?etap=2" id="mkE2" title="Pełny zakres: naprawa odpłatna, salon i data w Verto, dokument sprzedaży, szczegóły zgłoszenia">Etap 2</a>
 <a href="#dzis" data-v="dzis">Jak jest dziś</a>
 <a href="#zamowienie" data-v="zamowienie">Propozycja</a>
 <a href="#" id="mkReset" title="Przywraca reklamację klienta TCF-RMA-R/12763/2026 i usuwa zgłoszenia z panelu">Stan początkowy</a>
@@ -581,7 +583,10 @@ const INITIAL = [{id:1, kind:'reklamacja', no:'TCF-RMA-R/12763/2026', date:'27 p
  reqDate:'2026-10-27', who:'Klient (strona sklepu)', first:ORDER.first, last:ORDER.last, email:ORDER.email, phone:ORDER.phone, ctype:'warranty', reason:'detected_defect_during_use', faultDate:'2026-10-26',
  faultDesc:'Aparat nie włącza się. W komplecie bateria i ładowarka, stan dobry.', resolution:'repair',
  shipIn:'salon', in_salon:'Gdańsk, ul. Kartuska', shipBack:'salon', back_salon:'Gdańsk, ul. Kartuska', mail:true}];
-const KEY='mk-rma-panel-v5';
+// Etap 1 (?etap=1): podstawowa potrzeba, zwrot i reklamacja bez zmian w Verto. Bez parametru albo ?etap=2: pełny zakres.
+const E1=/etap=1/.test(location.search);
+const KEY='mk-rma-panel-v5'+(E1?'-e1':'');
+const rl=id=>(E1?'#wydruk/':'#zgloszenie/')+id;
 let S;
 function load(){ try{ const r=localStorage.getItem(KEY); S=r?JSON.parse(r):null; }catch(e){ S=null; } if(!S) S={rmas:JSON.parse(JSON.stringify(INITIAL)), next:12764}; }
 function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
@@ -607,7 +612,7 @@ function orderView(proposal){
  const total = ITEMS.reduce((a,i)=>a+i.price*i.qty,0), tax = ITEMS.reduce((a,i)=>a+i.tax,0);
  const rows = ITEMS.map(it=>{
   const rem=remaining(it), done=it.qty-rem;
-  const tags = proposal ? S.rmas.filter(r=>r.items.some(i=>i.id===it.id)).map(r=>`<a class="ui mini label" href="#zgloszenie/${r.id}" title="${r.no}">${KIND[r.kind].t} × ${r.items.find(i=>i.id===it.id).qty}</a>`).join(' ') : '';
+  const tags = proposal ? S.rmas.filter(r=>r.items.some(i=>i.id===it.id)).map(r=>`<a class="ui mini label" href="${rl(r.id)}" title="${r.no}">${KIND[r.kind].t} × ${r.items.find(i=>i.id===it.id).qty}</a>`).join(' ') : '';
   const cb = proposal ? `<div class="ui fitted checkbox ${rem?'':'disabled'}"><input type="checkbox" class="hidden itm" id="cb_${it.id}" data-id="${it.id}" ${rem?'':'disabled'} ${sel[it.id]?'checked':''}><label for="cb_${it.id}" title="${rem?'':'Cała ilość została już zwrócona'}"></label></div>` : '';
   const cell = proposal ? `<td><div style="display:flex;align-items:center;gap:1em">${cb}<div>${productHeader(it)}${tags?`<div style="margin-top:.5em">${tags}</div>`:''}</div></div></td>` : `<td class="single line">${productHeader(it)}</td>`;
   return `<tr class="${sel[it.id]?'active':''} ${rem||!proposal?'':'disabled'}">${cell}
@@ -615,7 +620,7 @@ function orderView(proposal){
   <td class="right aligned tax"><div class="tax-disabled"><div class="tax-included">${money(it.tax)}</div><small>(Wliczone w cenę)</small></div></td><td class="right aligned">${money(it.price*it.qty)}</td></tr>`;}).join('');
  const bulk = proposal ? `<div class="ui form"><div class="inline fields">
   <div class="field"><label id="selInfo"></label></div>
-  <div class="field"><select id="bulk" class="ui dropdown"><option value="">Wybierz akcję</option><option value="zwrot">Zgłoś zwrot</option><option value="reklamacja">Zgłoś reklamację</option><option value="naprawa">Zgłoś naprawę odpłatną</option></select></div>
+  <div class="field"><select id="bulk" class="ui dropdown"><option value="">Wybierz akcję</option><option value="zwrot">Zgłoś zwrot</option><option value="reklamacja">Zgłoś reklamację</option>${E1?'':'<option value="naprawa">Zgłoś naprawę odpłatną</option>'}</select></div>
   <div class="field"><button type="button" class="ui labeled icon primary button" id="bulkGo"><i class="arrow right icon"></i>Dalej</button></div></div></div>` : '';
  const thEl = proposal ? `<div style="display:flex;align-items:center;gap:1em"><div class="ui fitted checkbox"><input type="checkbox" id="cbAll" class="hidden"><label for="cbAll"></label></div>Element</div>` : 'Element';
  const table = `<div class="ui segment" style="overflow-x:auto;">${bulk}
@@ -630,7 +635,7 @@ function orderView(proposal){
  const rmaSec = proposal ? `<h4 class="ui attached styled header top compact">Zwroty i reklamacje</h4>
  <div class="ui attached segment">${S.rmas.length?`<table class="ui celled compact small table">
  <thead><tr><th>Numer zgłoszenia</th><th>Rodzaj</th><th>Data zgłoszenia</th><th>Produkty</th><th>Dostarczenie</th><th>Zgłosił</th><th></th></tr></thead>
- <tbody>${S.rmas.map(r=>`<tr><td><a href="#zgloszenie/${r.id}">${r.no}</a></td><td>${KIND[r.kind].t}</td><td>${plDate(r.reqDate)}</td><td>${r.items.map(i=>`${ITEMS.find(x=>x.id===i.id).name} × ${i.qty}`).join('<br>')}</td><td>${shipName(r)}</td><td>${r.who}</td><td class="center aligned"><a class="ui icon button" href="#wydruk/${r.id}" title="Drukuj potwierdzenie"><i class="print icon"></i></a></td></tr>`).join('')}</tbody></table>`
+ <tbody>${S.rmas.map(r=>`<tr><td><a href="${rl(r.id)}">${r.no}</a></td><td>${KIND[r.kind].t}</td><td>${plDate(r.reqDate)}</td><td>${r.items.map(i=>`${ITEMS.find(x=>x.id===i.id).name} × ${i.qty}`).join('<br>')}</td><td>${shipName(r)}</td><td>${r.who}</td><td class="center aligned"><a class="ui icon button" href="#wydruk/${r.id}" title="Drukuj potwierdzenie"><i class="print icon"></i></a></td></tr>`).join('')}</tbody></table>`
  :`<div class="ui info message"><div class="header">Info</div><p>Brak wyników do wyświetlenia</p></div>`}</div>` : '';
  const mail = `<h4 class="ui attached styled header top compact">E-mail jednorazowy</h4>
 <div class="ui attached segment"><form class="ui form" onsubmit="return false"><div class="field"><label>Szablony e-mail</label><select class="ui dropdown"><option>Czas się kończy, odbierz w ciągu 2 dni</option><option>Dotyczy zamówienia</option></select></div>
@@ -706,8 +711,7 @@ function openModal(kind, ids){
  ${isZ?'<tfoot><tr><th colspan="3" class="right aligned">Do zwrotu łącznie</th><th class="right aligned" id="rsum"></th></tr></tfoot>':''}</table>
  <h4 class="ui dividing header">Przyjęcie zgłoszenia</h4>
  ${row('Skąd przyszło', radios('source',[['tel','Telefon'],['mail','E-mail'],['chat','Czat'],['salon','Salon'],['parcel','Paczka z formularzem']]), 'source')}
- ${row('Salon przyjmujący', pick('srcSalon',SALONS.map(s=>[s,s])), 'srcSalon', 'data-sub="src-salon" style="display:none"')}
- ${row('Data zgłoszenia', `<input type="date" name="reqDate" value="${today()}" max="${today()}" class="mk-s">`, 'reqDate')}
+ ${E1?`<input type="hidden" name="reqDate" value="${today()}">`:row('Salon przyjmujący', pick('srcSalon',SALONS.map(s=>[s,s])), 'srcSalon', 'data-sub="src-salon" style="display:none"')+row('Data zgłoszenia', `<input type="date" name="reqDate" value="${today()}" max="${today()}" class="mk-s">`, 'reqDate')}
  <h4 class="ui dividing header">Klient</h4>
  ${summary('client','Dane klienta',`${ORDER.first} ${ORDER.last} · ${ORDER.email} · tel. ${ORDER.phone}`)}
  <div data-det="client" style="display:none">
@@ -754,7 +758,7 @@ function openModal(kind, ids){
  wrap.addEventListener('mousedown',e=>{ if(e.target===wrap) close(); });
  document.addEventListener('keydown',function esc(e){ if(e.key==='Escape'){ close(); document.removeEventListener('keydown',esc);} });
  const upd=()=>{
-  f.querySelector('[data-sub="src-salon"]').style.display = f.source.value==='salon'?'':'none';
+  const ss=f.querySelector('[data-sub="src-salon"]'); if(ss) ss.style.display = f.source.value==='salon'?'':'none';
   f.querySelector('label[for=mail]').textContent = 'Wyślij potwierdzenie zgłoszenia na '+f.email.value;
   ['in','back'].forEach(p=>{const s=f.querySelector(`[name=${p==='in'?'shipIn':'shipBack'}]`); f.querySelectorAll(`[data-sub^="${p}-"]`).forEach(x=>x.style.display=(s&&x.dataset.sub===p+'-'+s.value)?'':'none');});
   if(isZ){ let sum=0; f.querySelectorAll('.rqty').forEach(q=>{ const it=ITEMS.find(i=>i.id===q.dataset.id); const v=Math.max(0,Math.min(+q.value||0, remaining(it))); sum+=v*it.price; f.querySelector(`.rval[data-id="${it.id}"]`).textContent=money(v*it.price); }); document.getElementById('rsum').textContent=money(sum); }
@@ -762,7 +766,7 @@ function openModal(kind, ids){
  // Paczka z formularzem: produkt już jest w sklepie. Salon: klient zostawia sprzęt w salonie, który przyjął zgłoszenie.
  f.addEventListener('change',e=>{ if(e.target.name!=='source') return; if(f.source.value==='parcel'){ f.shipIn.value='own'; } if(f.source.value==='salon'){ f.shipIn.value='salon'; } upd(); });
  f.addEventListener('click',e=>{ const a=e.target.closest('[data-edit]'); if(!a) return; e.preventDefault(); const p=a.dataset.edit; f.querySelector(`[data-sum="${p}"]`).style.display='none'; f.querySelector(`[data-det="${p}"]`).style.display=''; });
- f.srcSalon.addEventListener('change',()=>{ if(f.shipIn.value==='salon' && f.in_salon) f.in_salon.value=f.srcSalon.value; });
+ if(f.srcSalon) f.srcSalon.addEventListener('change',()=>{ if(f.shipIn.value==='salon' && f.in_salon) f.in_salon.value=f.srcSalon.value; });
  f.addEventListener('change',upd); f.addEventListener('input',upd); upd();
  f.addEventListener('submit',e=>{
   e.preventDefault(); let ok=true; f.querySelectorAll('.field,.fields').forEach(x=>x.classList.remove('error'));
@@ -778,10 +782,10 @@ function openModal(kind, ids){
   const data={}; new FormData(f).forEach((v,k)=>data[k]=v);
   const r = Object.assign(data, {id:Date.now(), kind, no:`${k.pfx}/${S.next++}/2026`, date:now(),
    items:[...f.querySelectorAll('.rqty')].map(q=>({id:q.dataset.id, qty:+q.value})),
-   who:`Przemysław (panel, ${data.source==='salon'?'salon '+data.srcSalon.split(',')[0]:lbl(SOURCES,data.source).toLowerCase()})`, mail:f.mail.checked, resolution: data.resolution});
+   who:`Przemysław (panel, ${data.source==='salon'?('salon '+String(data.srcSalon||data.in_salon||'').split(',')[0]).trim():lbl(SOURCES,data.source).toLowerCase()})`, mail:f.mail.checked, resolution: data.resolution});
   if(new Date(r.reqDate)>new Date(today())){ f.reqDate.closest('.field').classList.add('error'); f.classList.add('error'); wrap.scrollTop=0; S.next--; return; }
   S.rmas.push(r); save(); sel={}; close();
-  flash = `${k.t} ${r.no} ${k.done} do Verto.${r.mail?' Klient dostał e-mail z potwierdzeniem.':''} <a href="#zgloszenie/${r.id}">Pokaż zgłoszenie</a> · <a href="#wydruk/${r.id}">Drukuj potwierdzenie</a>`;
+  flash = `${k.t} ${r.no} ${k.done} do Verto.${r.mail?' Klient dostał e-mail z potwierdzeniem.':''} ${E1?'':`<a href="#zgloszenie/${r.id}">Pokaż zgłoszenie</a> · `}<a href="#wydruk/${r.id}">Drukuj potwierdzenie</a>`;
   location.hash='#zamowienie'; render();
  });
 }
@@ -845,7 +849,7 @@ function printView(id){
   const f=(a,b)=>b?`<tr><th style="width:34%">${a}</th><td>${b}</td></tr>`:'';
   return `<div class="mk-doc-tools" style="max-width:780px;margin:0 auto 16px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
  <button type="button" class="ui labeled icon primary button" onclick="window.print()"><i class="print icon"></i>Drukuj</button>
- <a class="ui labeled icon button" href="#zgloszenie/${r.id}"><i class="arrow left icon"></i>Wróć do zgłoszenia</a></div>
+ ${E1?'<a class="ui labeled icon button" href="#zamowienie"><i class="arrow left icon"></i>Wróć do zamówienia</a>':`<a class="ui labeled icon button" href="#zgloszenie/${r.id}"><i class="arrow left icon"></i>Wróć do zgłoszenia</a>`}</div>
  <div class="mk-sheet">
  <div>Cyfrowe.pl Sp. z o.o.<br>ul. Łostowicka 25A<br>80-121 Gdańsk<br>Infolinia: 58 326 40 40<br>Email: serwis@cyfrowe.pl</div>
  <h1 style="margin-top:16px">Formularz zwrotu towaru</h1>
@@ -868,7 +872,7 @@ function printView(id){
  const statement = isZ ? 'Oświadczam, że odstępuję od umowy sprzedaży sprzętu wymienionego powyżej.' : PRINT_AGREE[r.kind];
  return `<div class="mk-doc-tools" style="max-width:780px;margin:0 auto 16px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
  <button type="button" class="ui labeled icon primary button" onclick="window.print()"><i class="print icon"></i>Drukuj</button>
- <a class="ui labeled icon button" href="#zgloszenie/${r.id}"><i class="arrow left icon"></i>Wróć do zgłoszenia</a>
+ ${E1?'<a class="ui labeled icon button" href="#zamowienie"><i class="arrow left icon"></i>Wróć do zamówienia</a>':`<a class="ui labeled icon button" href="#zgloszenie/${r.id}"><i class="arrow left icon"></i>Wróć do zgłoszenia</a>`}
  </div>
  <div class="mk-sheet">
  <div style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap">
@@ -905,6 +909,7 @@ function render(){
  document.querySelectorAll('.mk-bar a[data-v]').forEach(a=>a.classList.toggle('on', a.dataset.v===(v==='dzis'?'dzis':'zamowienie')));
  window.scrollTo(0,0);
 }
+document.getElementById(E1?'mkE1':'mkE2').classList.add('on');
 document.getElementById('mkReset').onclick=e=>{ e.preventDefault(); S={rmas:JSON.parse(JSON.stringify(INITIAL)), next:12764}; sel={}; save(); location.hash='#zamowienie'; render(); };
 document.getElementById('mkClear').onclick=e=>{ e.preventDefault(); S={rmas:[], next:12764}; sel={}; save(); location.hash='#zamowienie'; render(); };
 document.querySelectorAll('.sylius-admin-menu a[href="#dzis"]').forEach(a=>a.setAttribute('href','#zamowienie'));
